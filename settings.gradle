@@ -1,0 +1,44 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        flatDir {
+            dirs("libs")
+        }
+
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle/")
+        }
+
+    }
+}
+rootProject.name = "Drawing"
+include ':app'
+include ':ads'
+include ':crop'
+include ':common'
+include ':inapp'
+include ':analytics'
+include ':appOnBoarding'
+include ':gallery'
+include ':pencil_sketch'
+include ':darioscrollruler'

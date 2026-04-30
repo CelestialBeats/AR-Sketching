@@ -1,0 +1,155 @@
+{
+  "splash_screen": {
+    "native": {
+      "is_enabled": true,
+      "reload_limit": 2,
+      "ad_unit_ids": [
+        "ca-app-pub-4018658808072259/9681875518",
+        "ca-app-pub-4018658808072259/2138427412",
+        "ca-app-pub-4018658808072259/2728408177"
+      ]
+    },
+    "app_open": {
+      "is_enabled": true,
+      "ad_unit_ids": [
+        "ca-app-pub-4018658808072259/1453173346",
+        "ca-app-pub-4018658808072259/5162999825",
+        "ca-app-pub-4018658808072259/6256589648"
+      ]
+    },
+    "timeout": 7000,
+    "time": 6000,
+    "splash_pro_home": true
+  },
+  "app_interstitial": {
+    "floor": 2,
+    "start_count": 1,
+    "after_start_count": 3,
+    "always_show": false,
+    "is_enabled": false,
+    "ad_unit_ids": [
+      ""
+    ]
+  },
+  "rewarded": {
+    "is_enabled": true,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6488803179",
+      "ca-app-pub-4018658808072259/9558339167",
+      "ca-app-pub-4018658808072259/7825935578"
+    ]
+  },
+  "app_open_resume": {
+    "is_enabled": true,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6284509809",
+      "ca-app-pub-4018658808072259/3658346468",
+      "ca-app-pub-4018658808072259/9490303821"
+    ]
+  },
+  "language_screen": {
+    "native_before_selection": {
+      "is_enabled": true,
+      "reload_limit": 2,
+      "ad_unit_ids": [
+        "ca-app-pub-4018658808072259/8719101451",
+        "ca-app-pub-4018658808072259/6864140487",
+        "ca-app-pub-4018658808072259/6513928333"
+      ]
+    },
+    "native_after_selection": {
+      "is_enabled": true,
+      "reload_limit": 2,
+      "ad_unit_ids": [
+        "ca-app-pub-4018658808072259/4779856446",
+        "ca-app-pub-4018658808072259/4699965395",
+        "ca-app-pub-4018658808072259/1009178579"
+      ]
+    },
+    "interstitial": {
+      "floor": 2,
+      "start_count": 1,
+      "after_start_count": 1,
+      "always_show": false,
+      "is_enabled": false,
+      "ad_unit_ids": [
+        ""
+      ]
+    }
+  },
+  "onboarding_1_native": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/2073802053",
+      "ca-app-pub-4018658808072259/1962121413",
+      "ca-app-pub-4018658808072259/8447638713"
+    ]
+  },
+  "onboarding_2_native": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/7112694134",
+      "ca-app-pub-4018658808072259/6668699363",
+      "ca-app-pub-4018658808072259/3710317354"
+    ]
+  },
+  "onboarding_3_native": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/1770549725",
+      "ca-app-pub-4018658808072259/4549035547",
+      "ca-app-pub-4018658808072259/1903210421"
+    ]
+  },
+  "started_interstitial": {
+    "floor": 2,
+    "start_count": 1,
+    "after_start_count": 1,
+    "always_show": true,
+    "is_enabled": true,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/9306538205",
+      "ca-app-pub-4018658808072259/8657380522",
+      "ca-app-pub-4018658808072259/8129187906"
+    ]
+  },
+  "processing_native": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6031217184",
+      "ca-app-pub-4018658808072259/8330077465",
+      "ca-app-pub-4018658808072259/1711638733"
+    ]
+  },
+  "exit_save_native": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6031217184",
+      "ca-app-pub-4018658808072259/8330077465",
+      "ca-app-pub-4018658808072259/1711638733"
+    ]
+  },
+  "app_banner": {
+    "is_enabled": true,
+    "reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6680374864",
+      "ca-app-pub-4018658808072259/5367293192",
+      "ca-app-pub-4018658808072259/1956240803"
+    ]
+  },
+  "home_screen": {
+    "is_enabled": true,
+    "native_reload_limit": 2,
+    "ad_unit_ids": [
+      "ca-app-pub-4018658808072259/6031217184",
+      "ca-app-pub-4018658808072259/8330077465",
+      "ca-app-pub-4018658808072259/1711638733"
+    ]
+  }
+}

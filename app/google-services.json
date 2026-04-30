@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "870841675990",
+    "project_id": "ar-sketching-9e5ec",
+    "storage_bucket": "ar-sketching-9e5ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870841675990:android:0646916b69a39ea7c9d977",
+        "android_client_info": {
+          "package_name": "com.ar.drawing.sketching.trace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPBPWBnsvk6nn-VSaK_tD6Oozb655bOZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
