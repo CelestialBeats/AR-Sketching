@@ -29,10 +29,10 @@ import com.example.ads.Constants.newAdsConfig
 import com.example.ads.admobs.utils.loadNewInterstitial
 import com.example.ads.admobs.utils.showNewInterstitial
 import com.example.ads.admobs.utils.showRewardedInterstitial
-import com.example.ads.dialogs.FrameThumbType
-import com.example.ads.dialogs.createProFramesDialog
 import com.example.ads.dialogs.ExitModel
+import com.example.ads.dialogs.FrameThumbType
 import com.example.ads.dialogs.createExitDialog
+import com.example.ads.dialogs.createProFramesDialog
 import com.example.ads.utils.homeInterstitial
 import com.example.analytics.Constants.firebaseAnalytics
 import com.example.analytics.Events
@@ -49,8 +49,8 @@ import com.fahad.newtruelovebyfahad.utils.gone
 import com.fahad.newtruelovebyfahad.utils.navigateFragment
 import com.fahad.newtruelovebyfahad.utils.printLog
 import com.fahad.newtruelovebyfahad.utils.setSingleClickListener
-import com.fahad.newtruelovebyfahad.utils.showToast
 import com.fahad.newtruelovebyfahad.utils.visible
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.project.common.datastore.FrameDataStore
 import com.project.common.utils.ConstantsCommon.isNetworkAvailable
 import com.project.common.utils.enums.MainMenuOptions
@@ -101,62 +101,77 @@ class HomeForYouFragment : Fragment() {
         // Simple adapter — only drawable images, click navigates to HowToDrawFragment with the image path
         forYouFramesAdapter = HomeForYouAdapter(onClick = { item, position ->
             Log.i(TAG, "onCreate: clicked position $position path=${item.path}")
-            
-            mContext?.let { context ->
-                if (item.tags.isNotEmpty() && item.tags != "Free" && !isProVersion()) {
-                    mActivity?.createProFramesDialog(
-                        true, thumb = item.path, thumbType = ContextCompat.getDrawable(
-                            context, when ("portrait") {
-                                FrameThumbType.PORTRAIT.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_portrait
-                                FrameThumbType.LANDSCAPE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_landscape
-                                FrameThumbType.SQUARE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_squre
-                                else -> com.project.common.R.drawable.frame_placeholder_portrait
-                            }
-                        ), action = {
 
-                            mActivity?.showRewardedInterstitial(true, loadedAction = {
-                                lifecycleScope.launch(Dispatchers.IO) {
-                                    withContext(Main) {
-                                        kotlin.runCatching {
-                                            navController?.navigate(
-                                                HomeForYouFragmentDirections.actionHomeForYouFragmentToHowToDrawFragment(
-                                                    item.path
-                                                )
-                                            )
-                                        }
+            try {
+                val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA
+                )
+                else arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA
+                )
+                (mActivity as Permissions).checkAndRequestPermissions(*permissions, action = {
+
+                    mContext?.let { context ->
+                        if (item.tags.isNotEmpty() && item.tags != "Free" && !isProVersion()) {
+                            mActivity?.createProFramesDialog(
+                                true, thumb = item.path, thumbType = ContextCompat.getDrawable(
+                                    context, when (item.thumbtype.lowercase()) {
+                                        FrameThumbType.PORTRAIT.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_portrait
+                                        FrameThumbType.LANDSCAPE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_landscape
+                                        FrameThumbType.SQUARE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_squre
+                                        else -> com.project.common.R.drawable.frame_placeholder_portrait
                                     }
-                                }.invokeOnCompletion {}
-                            }, failedAction = {
+                                ), action = {
 
-                            })
+                                    mActivity?.showRewardedInterstitial(true, loadedAction = {
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            withContext(Main) {
+                                                kotlin.runCatching {
+                                                    navController?.navigate(
+                                                        HomeForYouFragmentDirections.actionHomeForYouFragmentToHowToDrawFragment(
+                                                            item.path
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }.invokeOnCompletion {}
+                                    }, failedAction = {
 
-                        }, goProAction = {
-                            try {
-                                activity?.let {
-                                    startActivity(Intent().apply {
-                                        setClassName(
-                                            it.applicationContext, getProScreen()
-                                        )
-                                        putExtra("from_frames", false)
                                     })
-                                }
-                            } catch (_: Exception) {
-                            }
-                        }, dismissAction = {}, item.tags.lowercase() == "paid"
-                    )
-                } else {
-                    activity?.showNewInterstitial(activity?.homeInterstitial()) {
-                        activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
-                        kotlin.runCatching {
-                            navController?.navigate(
-                                HomeForYouFragmentDirections.actionHomeForYouFragmentToHowToDrawFragment(
-                                    item.path
-                                )
+
+                                }, goProAction = {
+                                    try {
+                                        activity?.let {
+                                            startActivity(Intent().apply {
+                                                setClassName(
+                                                    it.applicationContext, getProScreen()
+                                                )
+                                                putExtra("from_frames", false)
+                                            })
+                                        }
+                                    } catch (_: Exception) {
+                                    }
+                                }, dismissAction = {}, item.tags.lowercase() == "paid"
                             )
+                        } else {
+                            activity?.showNewInterstitial(activity?.homeInterstitial()) {
+                                activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
+                                kotlin.runCatching {
+                                    navController?.navigate(
+                                        HomeForYouFragmentDirections.actionHomeForYouFragmentToHowToDrawFragment(
+                                            item.path
+                                        )
+                                    )
+                                }
+                            }
                         }
                     }
-                }
+
+                }, declineAction = {})
+            } catch (ex: Exception) {
+                printLog(ex.message.toString())
             }
+
         })
     }
 
@@ -171,8 +186,6 @@ class HomeForYouFragment : Fragment() {
     fun hideScreenAds() {
         if (isProVersion()) {
             _binding?.proBtn?.gone()
-        } else {
-            _binding?.proBtn?.gone()
         }
     }
 
@@ -185,8 +198,7 @@ class HomeForYouFragment : Fragment() {
     }
 
     private fun FragmentHomeBinding.initSliderViewPager() {
-        val list = getImageListHome(mContext ?: return, isPro = isProVersion(),
-            newAdsConfig?.homeScreen?.isEnabled ?: false)
+        val list = getImageListHome(mContext ?: return, isPro = isProVersion())
 
         val adapter = HomeSliderAdapter(
             activity ?: return,
@@ -270,6 +282,7 @@ class HomeForYouFragment : Fragment() {
                 if (it) {
                     _binding?.let {
                         hideScreenAds()
+                        initSliderViewPager()
                     }
                 }
             }
@@ -283,7 +296,7 @@ class HomeForYouFragment : Fragment() {
         }
         // Observe categorized images from ViewModel and submit to adapter
         homeViewModel.categorizedImages.observe(viewLifecycleOwner) { categories ->
-            swipeToRefresh.isRefreshing=false
+            swipeToRefresh.isRefreshing = false
             forYouFramesAdapter?.submitList(categories)
 
             _binding?.let {
@@ -293,14 +306,10 @@ class HomeForYouFragment : Fragment() {
         }
 
         // Trigger loading the categorized list
-        mContext?.packageName?.let { packageName ->
-            homeViewModel.loadDrawableImages(packageName)
-        }
+        homeViewModel.fetchHomeData()
 
         swipeToRefresh.setOnRefreshListener {
-            mContext?.packageName?.let { packageName ->
-                homeViewModel.loadDrawableImages(packageName)
-            }
+            homeViewModel.fetchHomeData()
         }
 
     }
@@ -456,8 +465,13 @@ class HomeForYouFragment : Fragment() {
                 }
 
                 MainMenuOptions.LEARNING.title -> {
-
-                    context?.showToast(ContextCompat.getString(mContext ?: return, com.project.common.R.string.coming_soon))
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(com.project.common.R.string.coming_soon)
+                        .setMessage("This feature will be available in the next update!")
+                        .setPositiveButton("Dismiss") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
 
 
 //                    try {

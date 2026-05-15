@@ -24,11 +24,11 @@ class HomeForYouAdapter(
         val category = dataList[position]
         with(holder.binding) {
             tvCategoryTitle.text = category.title
-            
+
             val childAdapter = HomeForYouChildAdapter(onClick)
             rvCategoryItems.adapter = childAdapter
             childAdapter.submitList(category.items)
-            
+
             // Setting setting proper animation off to avoid flash during update
             rvCategoryItems.itemAnimator = null
         }

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -24,15 +25,11 @@ import com.example.inapp.helpers.Constants.isProVersion
 import com.fahad.newtruelovebyfahad.databinding.FragmentDrawingFramesBinding
 import com.fahad.newtruelovebyfahad.ui.fragments.common.CategoriesRVAdapter
 import com.fahad.newtruelovebyfahad.ui.fragments.home.adapter.DrawingFramesRV
-import com.fahad.newtruelovebyfahad.utils.gone
-import com.fahad.newtruelovebyfahad.utils.invisible
-import com.fahad.newtruelovebyfahad.utils.isNetworkAvailable
 import com.fahad.newtruelovebyfahad.utils.setSingleClickListener
-import com.fahad.newtruelovebyfahad.utils.visible
 import com.google.android.gms.ads.nativead.NativeAd
-import com.project.common.utils.ConstantsCommon
 import com.project.common.utils.enums.MainMenuBlendOptions
 import com.project.common.utils.getProScreen
+import com.project.common.viewmodels.DrawingFramesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
@@ -51,6 +48,8 @@ class DrawingFramesFragment : Fragment() {
     private var framesAdapter: DrawingFramesRV? = null
     private var categoriesFramesSubData: LinkedHashMap<String, List<DrawingFramesRV.FrameModel>>? = linkedMapOf()
     private var nativeAd: NativeAd? = null
+
+    private val drawingViewModel: DrawingFramesViewModel by viewModels()
 
     private var event = ""
     var option: String? = null
@@ -78,9 +77,7 @@ class DrawingFramesFragment : Fragment() {
             }
         }
 
-        setupCategoriesData()
-
-        categoryTagsAdapter = CategoriesRVAdapter(categoriesFramesSubData?.keys?.toList() ?: emptyList()) { tag, position ->
+        categoryTagsAdapter = CategoriesRVAdapter(emptyList()) { tag, position ->
             _binding?.framesRv?.scrollToPosition(0)
             _binding?.categoryTagsRv?.scrollToPosition(position)
             categoriesFramesSubData?.get(tag)?.let {
@@ -106,7 +103,7 @@ class DrawingFramesFragment : Fragment() {
                 if (frameItem.tags?.isNotEmpty() == true && frameItem.tags != "Free" && !isProVersion()) {
                     mActivity.createProFramesDialog(
                         true, thumb = frameItem.path, thumbType = ContextCompat.getDrawable(
-                            context, when ("portrait") {
+                            context, when (frameItem.thumbtype.lowercase()) {
                                 FrameThumbType.PORTRAIT.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_portrait
                                 FrameThumbType.LANDSCAPE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_landscape
                                 FrameThumbType.SQUARE.type.lowercase() -> com.project.common.R.drawable.frame_placeholder_squre
@@ -147,7 +144,7 @@ class DrawingFramesFragment : Fragment() {
                             }
                         }, dismissAction = {}, frameItem.tags.lowercase() == "paid"
                     )
-                }else{
+                } else {
                     activity?.showNewInterstitial(activity?.homeInterstitial()) {
                         activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
                         kotlin.runCatching {
@@ -162,96 +159,6 @@ class DrawingFramesFragment : Fragment() {
             }
 
         })
-    }
-
-    private fun setupCategoriesData() {
-        val packageName = mContext.packageName
-
-        val free = com.project.common.utils.enums.PurchaseTag.FREE.tag
-        val rewarded = com.project.common.utils.enums.PurchaseTag.REWARDED.tag
-
-        fun createItem(resId: Int, tag: String): DrawingFramesRV.FrameModel {
-            return DrawingFramesRV.FrameModel(resId, "android.resource://$packageName/$resId", tag)
-        }
-
-        val cuteList = listOf(
-            createItem(com.project.common.R.drawable.cute_1, free),
-            createItem(com.project.common.R.drawable.cute_2, rewarded),
-            createItem(com.project.common.R.drawable.cute_3, rewarded),
-            createItem(com.project.common.R.drawable.cute_4, rewarded),
-            createItem(com.project.common.R.drawable.cute_5, free),
-            createItem(com.project.common.R.drawable.cute_6, rewarded),
-            createItem(com.project.common.R.drawable.cute_7, free),
-            createItem(com.project.common.R.drawable.cute_8, rewarded)
-        )
-
-        val cartoonList = listOf(
-            createItem(com.project.common.R.drawable.cartoon_1, free),
-            createItem(com.project.common.R.drawable.cartoon_2, rewarded),
-            createItem(com.project.common.R.drawable.cartoon_3, free),
-            createItem(com.project.common.R.drawable.cartoon_4, rewarded),
-            createItem(com.project.common.R.drawable.cartoon_5, free),
-            createItem(com.project.common.R.drawable.cartoon_6, rewarded),
-            createItem(com.project.common.R.drawable.cartoon_7, free)
-        )
-
-        val animalList = listOf(
-            createItem(com.project.common.R.drawable.animal_1, free),
-            createItem(com.project.common.R.drawable.animal_2, rewarded),
-            createItem(com.project.common.R.drawable.animal_3, rewarded),
-            createItem(com.project.common.R.drawable.animal_4, rewarded),
-            createItem(com.project.common.R.drawable.animal_5, rewarded),
-            createItem(com.project.common.R.drawable.animal_6, rewarded),
-            createItem(com.project.common.R.drawable.animal_7, free),
-            createItem(com.project.common.R.drawable.animal_8, rewarded),
-            createItem(com.project.common.R.drawable.animal_9, free),
-            createItem(com.project.common.R.drawable.animal_10, rewarded),
-            createItem(com.project.common.R.drawable.animal_11, free),
-            createItem(com.project.common.R.drawable.animal_12, rewarded),
-            createItem(com.project.common.R.drawable.animal_13, free)
-        )
-
-        val fantasyList = listOf(
-            createItem(com.project.common.R.drawable.fantasy_1, free),
-            createItem(com.project.common.R.drawable.fantasy_2, rewarded),
-            createItem(com.project.common.R.drawable.fantasy_3, free),
-            createItem(com.project.common.R.drawable.fantasy_4, rewarded),
-            createItem(com.project.common.R.drawable.fantasy_5, rewarded)
-        )
-
-        val foodList = listOf(
-            createItem(com.project.common.R.drawable.food_1, free),
-            createItem(com.project.common.R.drawable.food_2, rewarded),
-            createItem(com.project.common.R.drawable.food_3, rewarded),
-            createItem(com.project.common.R.drawable.food_4, free),
-            createItem(com.project.common.R.drawable.food_5, rewarded),
-        )
-
-        val animeList = listOf(
-            createItem(com.project.common.R.drawable.anime_1, free),
-            createItem(com.project.common.R.drawable.anime_2, rewarded),
-            createItem(com.project.common.R.drawable.anime_3, free),
-            createItem(com.project.common.R.drawable.anime_4, rewarded),
-            createItem(com.project.common.R.drawable.anime_5, free)
-        )
-
-        val allList = mutableListOf<DrawingFramesRV.FrameModel>()
-        allList.addAll(cuteList.take(3))
-        allList.addAll(cartoonList.take(3))
-        allList.addAll(animalList.take(3))
-        allList.addAll(fantasyList.take(3))
-        allList.addAll(foodList.take(3))
-        allList.addAll(animeList.take(3))
-
-        categoriesFramesSubData = linkedMapOf(
-            "All" to allList,
-            "Cute" to cuteList,
-            "Cartoon" to cartoonList,
-            "Animal" to animalList,
-            "Fantasy" to fantasyList,
-            "Food" to foodList,
-            "Anime" to animeList
-        )
     }
 
     fun hideScreenAds() {
@@ -273,23 +180,60 @@ class DrawingFramesFragment : Fragment() {
     }
 
     private fun FragmentDrawingFramesBinding.initViews() {
-        initObservers()
         initRecyclerViews()
-
-        categoriesFramesSubData?.get("All")?.let {
-            framesAdapter?.updateDataList(it)
-            framesAdapter?.categoryName = "all"
-        }
+        initObservers()
 
         backPress.setSingleClickListener {
             kotlin.runCatching {
                 navController.navigateUp()
             }
         }
+
+        drawingViewModel.fetchDrawingData()
     }
 
     private fun FragmentDrawingFramesBinding.initObservers() {
+        drawingViewModel.drawingCategories.observe(viewLifecycleOwner) { categories ->
+            val titles = mutableListOf("All")
+            titles.addAll(categories.map { it.title })
+            categoryTagsAdapter?.updateDataList(titles)
 
+            val allFrames = categories.flatMap { category ->
+                category.items.map { item ->
+                    DrawingFramesRV.FrameModel(
+                        id = item.id,
+                        path = item.path,
+                        tags = item.tags,
+                        thumb = item.thumb,
+                        thumbtype = item.thumbtype,
+                        baseUrl = item.baseUrl
+                    )
+                }
+            }
+
+            categoriesFramesSubData?.clear()
+            categoriesFramesSubData?.put("All", allFrames)
+
+            categories.forEach { category ->
+                val frames = category.items.map { item ->
+                    DrawingFramesRV.FrameModel(
+                        id = item.id,
+                        path = item.path,
+                        tags = item.tags,
+                        thumb = item.thumb,
+                        thumbtype = item.thumbtype,
+                        baseUrl = item.baseUrl
+                    )
+                }
+                categoriesFramesSubData?.put(category.title, frames)
+            }
+
+            // Initially show "All"
+            allFrames.let {
+                framesAdapter?.updateDataList(it)
+                framesAdapter?.categoryName = "all"
+            }
+        }
     }
 
     private fun FragmentDrawingFramesBinding.initRecyclerViews() {

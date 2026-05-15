@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.fahad.newtruelovebyfahad.R
 import com.fahad.newtruelovebyfahad.databinding.TagsRowItemBinding
 import com.project.common.utils.setOnSingleClickListener
 

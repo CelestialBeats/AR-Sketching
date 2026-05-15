@@ -4,22 +4,17 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.ads.admobs.utils.showNative
 import com.example.ads.databinding.NativeLayoutPortraitRvBinding
+import com.example.ads.dialogs.FrameThumbType
 import com.example.inapp.helpers.Constants.isProVersion
-import com.fahad.newtruelovebyfahad.R
 import com.fahad.newtruelovebyfahad.databinding.StaggeredScreenRowItemHomeBinding
 import com.fahad.newtruelovebyfahad.utils.checkForSafety
 import com.fahad.newtruelovebyfahad.utils.gone
@@ -29,6 +24,7 @@ import com.fahad.newtruelovebyfahad.utils.visible
 import com.google.android.gms.ads.nativead.NativeAd
 import com.project.common.utils.ConstantsCommon
 import com.project.common.utils.enums.PurchaseTag
+import com.project.common.utils.setDrawable
 
 class DrawingFramesRV(
     private val mContext: Context?,
@@ -71,57 +67,58 @@ class DrawingFramesRV(
                             else -> {}
                         }
                         with(holder.binding) {
-                            try {
-                                Glide.with(contentIv.context)
-                                    .asBitmap()
-                                    .override(500)
-                                    .load(item.drawableResId)
-                                    .into(object : CustomTarget<Bitmap>() {
-                                        override fun onLoadStarted(placeholder: Drawable?) {
-                                            contentIv.setImageDrawable(
-                                                ContextCompat.getDrawable(
-                                                    mContext ?: contentIv.context,
-                                                    com.project.common.R.drawable.frame_placeholder_portrait
-                                                )
-                                            )
-                                        }
 
-                                        override fun onResourceReady(
-                                            resource: Bitmap, transition: Transition<in Bitmap>?
-                                        ) {
-                                            contentIv.setImageBitmap(resource)
-                                            holder.itemView.setSingleClickListener {
-                                                onClick.invoke(item, position)
-                                            }
-                                        }
+                            Glide.with(contentIv.context)
+                                .load(item.thumb)
+                                .placeholder(
+                                    when (item.thumbtype.lowercase()) {
+                                        FrameThumbType.PORTRAIT.type.lowercase() -> holder.itemView.context.setDrawable(
+                                            com.project.common.R.drawable.frame_placeholder_portrait
+                                        )
 
-                                        override fun onLoadCleared(placeholder: Drawable?) {}
-                                    })
-                            } catch (_: Exception) {
-                                Log.d("TAG", "onBindViewHolder: ")
+                                        FrameThumbType.LANDSCAPE.type.lowercase() -> holder.itemView.context.setDrawable(
+                                            com.project.common.R.drawable.frame_placeholder_landscape
+                                        )
+
+                                        FrameThumbType.SQUARE.type.lowercase() -> holder.itemView.context.setDrawable(
+                                            com.project.common.R.drawable.frame_placeholder_squre
+                                        )
+
+                                        else -> holder.itemView.context.setDrawable(com.project.common.R.drawable.frame_placeholder_portrait)
+                                    }
+                                )
+                                .into(contentIv)
+
+                            holder.itemView.setSingleClickListener {
+                                onClick.invoke(item, position)
                             }
 
-                            val purchaseTagList = item.tags ?: "Free"
+                            var purchaseTagList = item.tags ?: "Free"
 
-                            if (!isProVersion() && item.tags?.isNotEmpty() == true && item.tags != "Free" && !ConstantsCommon.rewardedAssetsList.contains(item.id)
-                            ) {
+                            if (!isProVersion() && item.tags?.isNotEmpty() == true && item.tags != "Free") {
                                 when {
-                                    purchaseTagList.contains((PurchaseTag.PRO.tag)) -> {
+                                    purchaseTagList.contains(PurchaseTag.PRO.tag) -> {
                                         purchaseTagIv.apply {
                                             setImageResource(com.project.common.R.drawable.ic_pro_tag)
                                             visible()
                                         }
                                     }
 
-                                    purchaseTagList.contains((PurchaseTag.REWARDED.tag)) -> purchaseTagIv.apply {
-                                        setImageResource(com.project.common.R.drawable.ic_rewarded_tag)
-                                        visible()
+                                    purchaseTagList.contains(PurchaseTag.REWARDED.tag) && !ConstantsCommon.rewardedAssetsList.contains(item.id) -> {
+                                        purchaseTagIv.apply {
+                                            setImageResource(com.project.common.R.drawable.ic_rewarded_tag)
+                                            visible()
+                                        }
                                     }
 
-                                    purchaseTagList.contains((PurchaseTag.FREE.tag)) -> purchaseTagIv.apply { invisible() }
+                                    else -> {
+                                        purchaseTagList = "Free"
+                                        purchaseTagIv.apply { gone() }
+                                    }
                                 }
                             } else {
-                                purchaseTagIv.apply { invisible() }
+                                purchaseTagList = "Free"
+                                purchaseTagIv.apply { gone() }
                             }
                         }
                     }
@@ -257,7 +254,12 @@ class DrawingFramesRV(
 
     inner class AdViewHolder(val binding: NativeLayoutPortraitRvBinding) : ViewHolder(binding.root)
 
-    class FrameModel(val drawableResId: Int, val path: String, val tags: String? = null) {
-        val id: Int = drawableResId
-    }
+    data class FrameModel(
+        val id: Int,
+        val path: String,
+        val tags: String? = null,
+        val thumb: String = "",
+        val thumbtype: String = "portrait",
+        val baseUrl: String = ""
+    )
 }

@@ -27,6 +27,7 @@ class LanguageAdapter(
         private val flagLanguageItem: ImageView = itemView.findViewById(R.id.flagLanguageItem)
         private val titleLanguageItem: TextView = itemView.findViewById(R.id.titleLanguageItem)
         private val checkboxLanguageItemChecked: ImageView = itemView.findViewById(R.id.check_box_checked)
+        private val checkboxLanguageItemUnChecked: ImageView = itemView.findViewById(R.id.check_box_unChecked)
         private val layout: LinearLayout = itemView.findViewById(R.id.ll)
 
         fun bind(language: Language, position: Int) {
@@ -52,39 +53,33 @@ class LanguageAdapter(
             }
 
             // Show the checkbox if the item is selected
-            checkboxLanguageItemChecked.visibility = if (isSelected && isSelectedStart != 0) View.VISIBLE else View.GONE
-            layout.setBackgroundResource(
-                if (isSelected && isSelectedStart != 0) com.project.common.R.drawable.border_selected_lan
-                else com.project.common.R.drawable.border_unselected_lan
-            )
+            if (isSelected && isSelectedStart != 0) {
+                checkboxLanguageItemChecked.visibility = View.VISIBLE
+                checkboxLanguageItemUnChecked.visibility = View.GONE
+                layout.setBackgroundResource(com.project.common.R.drawable.border_selected_lan)
+            } else {
+                checkboxLanguageItemChecked.visibility = View.GONE
+                checkboxLanguageItemUnChecked.visibility = View.VISIBLE
+                layout.setBackgroundResource(com.project.common.R.drawable.border_unselected_lan)
+            }
 
             animationTap.visibility = if (isSelected && isSelectedStart == 0) View.VISIBLE else View.GONE
 
             // Handle item click
             itemView.setOnClickListener {
-                if (isSelectedStart == 0) {
+                if (!isSelected || isSelectedStart == 0) {
+                    val oldPosition = previousPosition
                     isSelectedStart = 1
-                    animationTap.visibility = View.GONE
-                    checkboxLanguageItemChecked.visibility = View.VISIBLE
-                    layout.setBackgroundResource(com.project.common.R.drawable.border_selected_lan)
-                    onLanguageSelected(language)
                     selectedLanguageCode = language.languageCode
-                    if (previousPosition >= 0)
-                        notifyItemChanged(previousPosition)
-                } else {
-                    if (!isSelected) {
+                    previousPosition = position
 
-                        isSelectedStart = 1
-                        animationTap.visibility = View.GONE
-                        checkboxLanguageItemChecked.visibility = View.VISIBLE
-                        layout.setBackgroundResource(com.project.common.R.drawable.border_selected_lan)
-                        onLanguageSelected(language)
-                        selectedLanguageCode = language.languageCode
-                        if (previousPosition >= 0)
-                            notifyItemChanged(previousPosition)
+                    onLanguageSelected(language)
+
+                    if (oldPosition >= 0) {
+                        notifyItemChanged(oldPosition)
                     }
+                    notifyItemChanged(position)
                 }
-                previousPosition = position
             }
         }
     }

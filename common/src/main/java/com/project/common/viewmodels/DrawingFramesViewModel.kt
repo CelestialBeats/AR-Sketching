@@ -10,34 +10,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeAndTemplateViewModel @Inject constructor(
+class DrawingFramesViewModel @Inject constructor(
     private val homeRepository: HomeRepository
 ) : ViewModel() {
 
-    // Model to represent a single image item
-    data class DrawableItem(
-        val id: Int,
-        val drawableResId: Int,
-        val path: String,
-        val tags: String,
-        val thumb: String = "",
-        val thumbtype: String = "portrait",
-        val baseUrl: String = ""
-    )
+    private val _drawingCategories: MutableLiveData<List<HomeAndTemplateViewModel.CategoryModel>> = MutableLiveData()
+    val drawingCategories: LiveData<List<HomeAndTemplateViewModel.CategoryModel>> get() = _drawingCategories
 
-    // Model to represent a category row
-    data class CategoryModel(val title: String, val items: List<DrawableItem>)
-
-    private val _categorizedImages: MutableLiveData<List<CategoryModel>> = MutableLiveData()
-    val categorizedImages: LiveData<List<CategoryModel>> get() = _categorizedImages
-
-    fun fetchHomeData() {
+    fun fetchDrawingData() {
         viewModelScope.launch {
             try {
                 val response = homeRepository.getHomeData()
                 if (response.isSuccessful) {
                     val screens = response.body()
-                    // The user's JSON shows a list of screens, we want the "Home" screen (usually index 0 or filtered by title)
                     val homeScreen = screens?.find { it.title.equals("Home", ignoreCase = true) }
                         ?: screens?.firstOrNull()
 
@@ -49,7 +34,7 @@ class HomeAndTemplateViewModel @Inject constructor(
                                 } else {
                                     "${frame.baseUrl}${frame.thumb}"
                                 }
-                                DrawableItem(
+                                HomeAndTemplateViewModel.DrawableItem(
                                     id = frame.id,
                                     drawableResId = 0,
                                     path = fullThumbUrl,
@@ -59,9 +44,9 @@ class HomeAndTemplateViewModel @Inject constructor(
                                     baseUrl = frame.baseUrl
                                 )
                             }
-                            CategoryModel(category.title, items)
+                            HomeAndTemplateViewModel.CategoryModel(category.title, items)
                         }
-                        _categorizedImages.postValue(categories)
+                        _drawingCategories.postValue(categories)
                     }
                 }
             } catch (e: Exception) {
@@ -69,5 +54,4 @@ class HomeAndTemplateViewModel @Inject constructor(
             }
         }
     }
-
 }

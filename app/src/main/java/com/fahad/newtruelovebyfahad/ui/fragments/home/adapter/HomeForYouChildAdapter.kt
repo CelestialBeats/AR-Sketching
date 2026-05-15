@@ -4,13 +4,16 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.ads.dialogs.FrameThumbType
 import com.example.inapp.helpers.Constants.isProVersion
 import com.fahad.newtruelovebyfahad.databinding.HorizontalRowItemHomeBinding
-import com.fahad.newtruelovebyfahad.utils.invisible
+import com.fahad.newtruelovebyfahad.utils.gone
 import com.fahad.newtruelovebyfahad.utils.setSingleClickListener
 import com.fahad.newtruelovebyfahad.utils.visible
 import com.project.common.utils.ConstantsCommon
 import com.project.common.utils.enums.PurchaseTag
+import com.project.common.utils.setDrawable
 import com.project.common.viewmodels.HomeAndTemplateViewModel
 
 class HomeForYouChildAdapter(
@@ -29,11 +32,31 @@ class HomeForYouChildAdapter(
     override fun onBindViewHolder(holder: DrawableViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val item = dataList[position]
         with(holder.binding) {
-            contentIv.setImageResource(item.drawableResId)
 
-            val purchaseTagList = item.tags ?: "Free"
+            Glide.with(holder.itemView.context)
+                .load(item.thumb)
+                .placeholder(
+                    when (item.thumbtype.lowercase()) {
+                        FrameThumbType.PORTRAIT.type.lowercase() -> holder.itemView.context.setDrawable(
+                            com.project.common.R.drawable.frame_placeholder_portrait
+                        )
 
-            if (!isProVersion() && item.tags.isNotEmpty() && item.tags != "Free" && !ConstantsCommon.rewardedAssetsList.contains(item.id)) {
+                        FrameThumbType.LANDSCAPE.type.lowercase() -> holder.itemView.context.setDrawable(
+                            com.project.common.R.drawable.frame_placeholder_landscape
+                        )
+
+                        FrameThumbType.SQUARE.type.lowercase() -> holder.itemView.context.setDrawable(
+                            com.project.common.R.drawable.frame_placeholder_squre
+                        )
+
+                        else -> holder.itemView.context.setDrawable(com.project.common.R.drawable.frame_placeholder_portrait)
+                    }
+                )
+                .into(contentIv)
+
+            var purchaseTagList = item.tags ?: "Free"
+
+            if (!isProVersion() && item.tags.isNotEmpty() && item.tags != "Free") {
                 when {
                     purchaseTagList.contains(PurchaseTag.PRO.tag) -> {
                         purchaseTagIv.apply {
@@ -42,15 +65,21 @@ class HomeForYouChildAdapter(
                         }
                     }
 
-                    purchaseTagList.contains(PurchaseTag.REWARDED.tag) -> purchaseTagIv.apply {
-                        setImageResource(com.project.common.R.drawable.ic_rewarded_tag)
-                        visible()
+                    purchaseTagList.contains(PurchaseTag.REWARDED.tag) && !ConstantsCommon.rewardedAssetsList.contains(item.id) -> {
+                        purchaseTagIv.apply {
+                            setImageResource(com.project.common.R.drawable.ic_rewarded_tag)
+                            visible()
+                        }
                     }
 
-                    purchaseTagList.contains(PurchaseTag.FREE.tag) -> purchaseTagIv.apply { invisible() }
+                    else -> {
+                        purchaseTagList = "Free"
+                        purchaseTagIv.apply { gone() }
+                    }
                 }
             } else {
-                purchaseTagIv.apply { invisible() }
+                purchaseTagList = "Free"
+                purchaseTagIv.apply { gone() }
             }
 
             root.setSingleClickListener {

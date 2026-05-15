@@ -627,4 +627,12 @@
     <string name="eraser">Eraser</string>
     <string name="this_action_may_contains_ads">This action may contains ads</string>
 
+    <string name="ar_safety_notice">AR Safety Notice</string>
+    <string name="ar_notice_intro">This app uses Augmented Reality (AR) features.</string>
+    <string name="for_safe_use">For safe use:</string>
+    <string name="ar_safety_points">• Children should use this feature under parental supervision.\n\n• Stay aware of your physical surroundings at all times.\n\n• Use the app in a safe and open area.\n\n• Avoid using AR while walking, driving, or near obstacles.</string>
+    <string name="ar_safety_acknowledge">By continuing, you acknowledge these safety instructions.</string>
+    <string name="ar_checkbox_text">I have read and understood the safety instructions</string>
+    <string name="read_safety_first">Please read and accept the safety instructions.</string>
+
 </resources>

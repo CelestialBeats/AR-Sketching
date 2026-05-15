@@ -11,7 +11,7 @@ import com.project.common.utils.enums.MainMenuBlendOptions
 @Keep
 object SliderList {
 
-    fun getImageListHome(context: Context, isPro: Boolean, isEnable: Boolean): ArrayList<SliderItem> {
+    fun getImageListHome(context: Context, isPro: Boolean): ArrayList<SliderItem> {
         val list =  arrayListOf(
             SliderItem(
                 R.drawable.s_image_2,
@@ -36,7 +36,7 @@ object SliderList {
             )
         )
 
-        if (!isPro && isEnable && context.isNetworkAvailable()) {
+        if (!isPro) {
             list.add(3, SliderItem(type = ItemType.AD)) // insert ad at position 2
         }
 

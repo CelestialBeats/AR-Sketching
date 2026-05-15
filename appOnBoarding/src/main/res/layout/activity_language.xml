@@ -57,13 +57,16 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
+        android:paddingEnd="12dp"
         android:paddingBottom="16dp"
-        tools:listitem="@layout/item_language"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@id/native_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topView" />
+        app:layout_constraintTop_toBottomOf="@id/topView"
+        app:spanCount="2"
+        tools:listitem="@layout/item_language" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/banner_container"

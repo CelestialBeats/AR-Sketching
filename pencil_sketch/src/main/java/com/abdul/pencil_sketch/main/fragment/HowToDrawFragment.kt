@@ -4,11 +4,16 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,6 +33,8 @@ import com.abdul.pencil_sketch.utils.navigateFragment
 import com.example.ads.admobs.utils.loadNewInterstitial
 import com.example.ads.admobs.utils.showNewInterstitial
 import com.example.ads.utils.homeInterstitial
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.project.common.utils.setDrawable
 import com.project.common.utils.setOnSingleClickListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -180,7 +187,76 @@ class HowToDrawFragment : Fragment() {
         }
 
         binding.drawBtn.setOnSingleClickListener {
+            if (isArSafetyShown()) {
+                activity?.showNewInterstitial(activity?.homeInterstitial()) {
+                    activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
+                    activity?.showNewInterstitial(activity?.homeInterstitial()) {
+                        activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
+                        activity?.let { mActivity ->
+                            if (mActivity is PencilSketchActivity) {
+                                mActivity.sketchMode = currentMode
+                                sketchImageViewModel.sketchMode = currentMode
+                                mActivity.navigateFragment(
+                                    HowToDrawFragmentDirections.actionHowToDrawFragmentToDrawingFragment(),
+                                    R.id.howToDrawFragment
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                showArSafetyBottomSheet()
+            }
+        }
 
+        binding.backPress.setOnSingleClickListener {
+            kotlin.runCatching {
+                navController.navigateUp()
+            }
+        }
+
+    }
+
+    private fun showArSafetyBottomSheet() {
+        val dialog = BottomSheetDialog(mContext)
+        val contentView = layoutInflater.inflate(com.project.common.R.layout.bottom_sheet_ar_safety, null)
+        dialog.setContentView(contentView)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+
+        dialog.behavior.apply {
+            state = BottomSheetBehavior.STATE_EXPANDED
+            skipCollapsed = true
+            isDraggable = false
+        }
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.let { sheet ->
+                val params = sheet.layoutParams as CoordinatorLayout.LayoutParams
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT
+                sheet.layoutParams = params
+                sheet.setBackgroundResource(android.R.color.transparent)
+                BottomSheetBehavior.from(sheet).state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        val backPress = contentView.findViewById<ImageView>(com.project.common.R.id.backPress)
+        val continueBtn = contentView.findViewById<TextView>(com.project.common.R.id.continueBtn)
+        val consentCheckBox = contentView.findViewById<CheckBox>(com.project.common.R.id.consentCheckBox)
+
+        backPress.setOnClickListener { dialog.dismiss() }
+        continueBtn.setOnClickListener {
+            if (!consentCheckBox.isChecked) {
+                Toast.makeText(
+                    mContext,
+                    com.project.common.R.string.read_safety_first,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            setArSafetyShown()
             activity?.showNewInterstitial(activity?.homeInterstitial()) {
                 activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
                 activity?.let { mActivity ->
@@ -194,15 +270,26 @@ class HowToDrawFragment : Fragment() {
                     }
                 }
             }
-
         }
+        dialog.window?.setGravity(Gravity.BOTTOM)
+        dialog.show()
+    }
 
-        binding.backPress.setOnSingleClickListener {
-            kotlin.runCatching {
-                navController.navigateUp()
-            }
-        }
+    private fun isArSafetyShown(): Boolean {
+        return mContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_AR_SAFETY_SHOWN, false)
+    }
 
+    private fun setArSafetyShown() {
+        mContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_AR_SAFETY_SHOWN, true)
+            .apply()
+    }
+
+    companion object {
+        private const val PREF_NAME = "ar_safety_pref"
+        private const val KEY_AR_SAFETY_SHOWN = "key_ar_safety_shown"
     }
 
 }

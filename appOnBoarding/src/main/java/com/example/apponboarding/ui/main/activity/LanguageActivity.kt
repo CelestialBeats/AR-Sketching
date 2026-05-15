@@ -10,7 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.ads.Constants.firebaseAnalytics
 import com.example.ads.Constants.languageCode
 import com.example.ads.Constants.loadNativeFullOne
@@ -148,7 +148,7 @@ class LanguageActivity : AppCompatActivity() {
             }
         }
 
-        rvLanguages.layoutManager = LinearLayoutManager(this@LanguageActivity)
+        rvLanguages.layoutManager = GridLayoutManager(this@LanguageActivity, 2)
         rvLanguages.adapter = languageAdapter
         viewModel.languages.observe(this@LanguageActivity) { languages ->
             if (::languageAdapter.isInitialized) {

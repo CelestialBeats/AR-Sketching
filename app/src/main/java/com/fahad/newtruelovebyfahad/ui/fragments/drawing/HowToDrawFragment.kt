@@ -4,11 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -26,6 +31,8 @@ import com.fahad.newtruelovebyfahad.ui.activities.main.MainActivity
 import com.fahad.newtruelovebyfahad.ui.fragments.drawing.adapter.SliderAdapterHD
 import com.fahad.newtruelovebyfahad.ui.fragments.drawing.adapter.SliderItemHD
 import com.fahad.newtruelovebyfahad.utils.setSingleClickListener
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.project.common.utils.setDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.abs
@@ -163,11 +170,15 @@ class HowToDrawFragment : Fragment() {
 
         binding.drawBtn.setSingleClickListener {
 
-            activity?.showNewInterstitial(activity?.homeInterstitial()) {
-                activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
-                kotlin.runCatching {
-                    openPencilSketch(path = args.path, mode = currentMode)
+            if (isArSafetyShown()) {
+                activity?.showNewInterstitial(activity?.homeInterstitial()) {
+                    activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
+                    kotlin.runCatching {
+                        openPencilSketch(path = args.path, mode = currentMode)
+                    }
                 }
+            } else {
+                showArSafetyBottomSheet()
             }
 
         }
@@ -178,6 +189,69 @@ class HowToDrawFragment : Fragment() {
             }
         }
 
+    }
+
+    private fun showArSafetyBottomSheet() {
+        val dialog = BottomSheetDialog(mContext)
+        val contentView = layoutInflater.inflate(com.project.common.R.layout.bottom_sheet_ar_safety, null)
+        dialog.setContentView(contentView)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+
+        dialog.behavior.apply {
+            state = BottomSheetBehavior.STATE_EXPANDED
+            skipCollapsed = true
+            isDraggable = false
+        }
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.let { sheet ->
+                val params = sheet.layoutParams as CoordinatorLayout.LayoutParams
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT
+                sheet.layoutParams = params
+                sheet.setBackgroundResource(android.R.color.transparent)
+                BottomSheetBehavior.from(sheet).state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        val backPress = contentView.findViewById<ImageView>(com.project.common.R.id.backPress)
+        val continueBtn = contentView.findViewById<TextView>(com.project.common.R.id.continueBtn)
+        val consentCheckBox = contentView.findViewById<CheckBox>(com.project.common.R.id.consentCheckBox)
+
+        backPress.setSingleClickListener { dialog.dismiss() }
+        continueBtn.setSingleClickListener {
+            if (!consentCheckBox.isChecked) {
+                Toast.makeText(
+                    mContext,
+                    com.project.common.R.string.read_safety_first,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setSingleClickListener
+            }
+            dialog.dismiss()
+            setArSafetyShown()
+            activity?.showNewInterstitial(activity?.homeInterstitial()) {
+                activity?.loadNewInterstitial(activity?.homeInterstitial()) {}
+                kotlin.runCatching {
+                    openPencilSketch(path = args.path, mode = currentMode)
+                }
+            }
+        }
+        dialog.window?.setGravity(Gravity.BOTTOM)
+        dialog.show()
+    }
+
+    private fun isArSafetyShown(): Boolean {
+        return mContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_AR_SAFETY_SHOWN, false)
+    }
+
+    private fun setArSafetyShown() {
+        mContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_AR_SAFETY_SHOWN, true)
+            .apply()
     }
 
     private fun openPencilSketch(path: String, mode: String) {
@@ -200,6 +274,11 @@ class HowToDrawFragment : Fragment() {
             }
         }
         return null
+    }
+
+    companion object {
+        private const val PREF_NAME = "ar_safety_pref"
+        private const val KEY_AR_SAFETY_SHOWN = "key_ar_safety_shown"
     }
 
 

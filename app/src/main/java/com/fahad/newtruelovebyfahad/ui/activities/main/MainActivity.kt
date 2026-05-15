@@ -440,9 +440,9 @@ class MainActivity : Permissions(), InternetConnectivityListener {
             val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
             when (val fragment = navHostFragment?.childFragmentManager?.fragments?.get(0)) {
 
-                is HomeForYouFragment -> {
-                    if (hideViews) fragment.hideScreenAds() else fragment.showScreenAd()
-                }
+//                is HomeForYouFragment -> {
+//                    if (hideViews) fragment.hideScreenAds() else fragment.showScreenAd()
+//                }
 
                 is SettingsFragment -> {
                     if (hideViews) fragment.hideScreenAds() else fragment.showScreenAd()

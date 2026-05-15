@@ -31,7 +31,7 @@ dependencyResolutionManagement {
 
     }
 }
-rootProject.name = "Drawing"
+rootProject.name = "Sketch"
 include ':app'
 include ':ads'
 include ':crop'

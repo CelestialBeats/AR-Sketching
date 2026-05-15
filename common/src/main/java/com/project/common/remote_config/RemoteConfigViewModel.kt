@@ -29,7 +29,7 @@ class RemoteConfigViewModel @Inject constructor(private val repository: RemoteCo
         rc.fetchAndActivate()
             .addOnCompleteListener(context) { task ->
                 if (task.isSuccessful) {
-                    val adJson = rc.getString("ar_draw_ad_settings")
+                    val adJson = rc.getString("sketch_ad_settings")
                     adConfig.value = if (adJson.isEmpty()) {
                         repository.getDefaultRemoteAdSettings()
                     } else {
@@ -63,7 +63,7 @@ class RemoteConfigViewModel @Inject constructor(private val repository: RemoteCo
             return repository.getDefaultRemoteAdSettings()
         }
 
-        val jsonString = repository.getFirebaseRemoteConfig().getString("ar_draw_ad_settings")
+        val jsonString = repository.getFirebaseRemoteConfig().getString("sketch_ad_settings")
         return if (jsonString.isEmpty()) {
             repository.getDefaultRemoteAdSettings()
         } else {
